@@ -44,7 +44,7 @@ Patent Finder/<br />
 3. **Install Dependencies:**<br />
 *pip install -r requirements.txt*<br /><br />
 4. **Configure Environment Variables:**<br />
-Update the .env files with your database credentials and desire configuration:<br />
+Update the .env files with your database credentials and desire configuration:<br /><br />
 *DB_HOST=localhost # default host<br />
 DB_NAME=yourdatabase<br />
 DB_USER=postgres # default username<br />
