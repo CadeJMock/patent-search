@@ -60,7 +60,9 @@ Start the Flask server:<br />
 Then, open your browser and navigate to *http://localhost:5000* to use the application.<br /><br />
 
 ## Data Processing
-The "*Patent scraped data.py*" script handles the conversion of raw patent XML data into a JSON format. This data (stored in "*ipg240102.json*") is used for populating the patent database and demonstrating the search functionality.<br /><br />
+The "*Patent scraped data.py*" script handles the conversion of raw patent XML data into a JSON format. This data (stored in a .json file) is used for populating the patent database and demonstrating the search functionality.<br />
+To get a correct XML file to process, head to "https://bulkdata.uspto.gov/" and download a zip file under the section "Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)."<br />
+Unzip the file into the "data scrapper" file, and then you may run the python file.<br />
 
 ## Authors
 - **Team Members:** Kathleen Sachez, Cade Mock, Cole Mattern, Alex Pittman, Darrnell Lampkin, Parker Jung, and Charan Jagwani
