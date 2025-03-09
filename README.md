@@ -36,7 +36,7 @@ Patent Finder/<br />
 
 ## Installation
 1. **Clone Repository:**<br />
-*git clone https://git clone https://github.com/CaeJMock/patent-search.git*<br />
+*git clone https://github.com/CadeJMock/patent-search.git*<br />
 *cd patent-search*<br /><br />
 2. **Set Up Virtual Environment:**<br />
 *python -m venv venv*<br />
