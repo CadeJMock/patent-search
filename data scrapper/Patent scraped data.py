@@ -1,50 +1,33 @@
-# Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)
-# Patent Grant Full Text Data/XML Version 4.7 ICE (JAN 2024 - DEC 2024)
-# First file being scraped as of now --> ipg240102.xml
-
-# Steps I have done so far, all are below -
-# 1. Downloaded zip file
-# 2. Extracted the files contents
-# 3. Parsed and extracted the data within the file, converted xml to json.
-# 4. Did some error handling
-
-# EDITED (3/4/2025) by Cade Mock - updated a lot
-# 1. memory-efficient parsing (ET.iterparse(), so we don't load the entire large XML file into memory at once)
-# 2. auto XML structure detection, the script now examines the XML and identifies the correct patent element tag (in case the sctructure changes later on)
-# 3. multiple path checking (tries several possible XML paths for each data field, again in case the XML structure changes)
-# 4. progress tracking (shows progress/elapsed times so we can see the script working on the file)
-# 5. periodic saving (since its a large file, I chose to save every 10,000 patents, so we don't lose everything if it crashes at some point)
-# 6. more error handling
-# 7. handling for concat. XML files (which is the type that we are dealing)
-# 8. developed the parses to read line-by-line and use regex pattern matching
-# 9. system to detect document boundaries between multiple XML files
-# 10. heavily commented entire file
-#
-# Resources Used:
-# 1. Old Self-Made Project (also parsing a concated. XML file)
-# 2. https://www.uspto.gov/learning-and-resources/xml-resources
-# 3. https://developer.uspto.gov/product/patent-grant-full-text-dataxml
-# 4. https://docs.python.org/3/library/xml.etree.elementtree.html
-# 5. https://docs.python.org/3/library/json.html
-# 6. https://lxml.de/parsing.html
-# 7. https://developer.uspto.gov/data/tutorials
-# 8. https://docs.python.org/3/library/re.html
-# 9. https://github.com/PatentsView/PatentsView-DB
-# 10. https://console.cloud.google.com/marketplace/product/google_patents_public_datasets/google-patents-public-data?pli=1
-# 11. https://stackoverflow.com/questions/9809469/python-sax-to-lxml-for-80gb-xml
-
-
 import os                          # for operating system functions like creating directories and handling file paths
 import json                        # for encoding and decoding JSON data
 import re                          # for "regular expression" operations to identify patterns in text
 import xml.etree.ElementTree as ET # for processing XML data using a tree structure
 from datetime import datetime      # datetime to track processing time and durations
 
-# path to the input XML file containing patent data
-xml_file_path = "Patent Extracted Data\\ipg240102.xml"
+# directory path to get .xml file
+data_dir = "data scrapper"
 
-# path for the output JSON file where processed patent data will be stored
-json_file_path = "Patent Extracted Data\\ipg240102.json"
+# get all XML files in the directory "data scrapper"
+xml_files = [f for f in os.listdir(data_dir) if f.endswith('.xml')]
+
+if xml_files:
+    # use the FIRST XML file found
+    xml_filename = xml_files[0]
+    # create full path to xml file - containing patent data (hopefully)
+    xml_file_path = os.path.join(data_dir, xml_filename)
+    
+    # generate the JSON filename by replacing .xml with .json
+    json_filename = os.path.splitext(xml_filename)[0] + '.json'
+    # create full path to json file - containing processed data
+    json_file_path = os.path.join(data_dir, json_filename)
+    
+    print(f"Found XML file: {xml_file_path}")
+    print(f"Will save to JSON file: {json_file_path}")
+else:
+    print("No XML files found in the 'data scrapper' directory.")
+    print("Please navigate to 'https://bulkdata.uspto.gov/' and download an XML file from the section: Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)")
+    print("Then, unzip the XML file into the correct directory and rerun the program.")
+    exit(1)
 
 # create the directory structure for the output file if it doesn't already exist
 os.makedirs(os.path.dirname(json_file_path), exist_ok=True)  # exist_ok=True prevents errors if directory already exists
