@@ -45,12 +45,12 @@ Patent Finder/<br />
 *pip install -r requirements.txt*<br /><br />
 4. **Configure Environment Variables:**<br />
 Update the .env files with your database credentials and desire configuration:<br />
-*DB_HOST=localhost<br />
-DB_NAME=patentfinder<br />
-DB_USER=postgres<br />
+*DB_HOST=localhost # default host<br />
+DB_NAME=yourdatabase<br />
+DB_USER=postgres # default username<br />
 DB_PASS=yourpassword<br />
-DB_PORT=5432<br />
-PORT=5000*<br /><br />
+DB_PORT=5432 # default database port <br />
+PORT=5000 #default port*<br /><br />
 5. **Initialize the Database:**<br />
 Ensure PostgreSQL is installed and running. The Flask app automatically creates the necessary table and inserts dummy data if the database is empty.<br />
 
