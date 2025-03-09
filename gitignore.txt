@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# XML and JSON files (CHANGE LATER IF WE ADD .json TO OUR MAIN PROJECT FILES)
+*.xml
+*.json
