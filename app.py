@@ -45,6 +45,10 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # DROP the patents table if it exists, this is to ensure it updates with our dummy_patents data each time,
+    # in case we add new information or change stuff around
+    cursor.execute('DROP TABLE IF EXISTS patents')
+    
     # create patents table if it doesn't exist yet
     # this table stores all patent information
     cursor.execute('''
@@ -95,7 +99,10 @@ def init_db():
              '2021-01-15', '2041-01-15', 'An educational platform that uses augmented reality to create interactive learning experiences.'),
             
             ('US11012345', 'Wireless Power Transmission System', 'Daniel White, Jennifer Kim', 
-             '2017-12-03', '2037-12-03', 'A system for transmitting electrical power without wires using resonant inductive coupling.')
+             '2017-12-03', '2037-12-03', 'A system for transmitting electrical power without wires using resonant inductive coupling.'),
+            
+            ('US11012346', 'Wireless Home Fridge', 'Cade M', 
+             '2018-12-07', '2037-3-05', 'A wireless fridge #test.')
         ]
         
         # executemany() efficiently executes the same SQL for multiple parameter sets
