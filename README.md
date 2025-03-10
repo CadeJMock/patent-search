@@ -36,7 +36,7 @@ Patent Finder/<br />
 
 ## Installation
 1. **Clone Repository:**<br />
-*git clone https://git clone https://github.com/CaeJMock/patent-search.git*<br />
+*git clone https://github.com/CadeJMock/patent-search.git*<br />
 *cd patent-search*<br /><br />
 2. **Set Up Virtual Environment:**<br />
 *python -m venv venv*<br />
@@ -44,13 +44,13 @@ Patent Finder/<br />
 3. **Install Dependencies:**<br />
 *pip install -r requirements.txt*<br /><br />
 4. **Configure Environment Variables:**<br />
-Update the .env files with your database credentials and desire configuration:<br />
-*DB_HOST=localhost<br />
-DB_NAME=patentfinder<br />
-DB_USER=postgres<br />
+Update the .env files with your database credentials and desire configuration:<br /><br />
+*DB_HOST=localhost # default host<br />
+DB_NAME=yourdatabase<br />
+DB_USER=postgres # default username<br />
 DB_PASS=yourpassword<br />
-DB_PORT=5432<br />
-PORT=5000*<br /><br />
+DB_PORT=5432 # default database port <br />
+PORT=5000 #default port*<br /><br />
 5. **Initialize the Database:**<br />
 Ensure PostgreSQL is installed and running. The Flask app automatically creates the necessary table and inserts dummy data if the database is empty.<br />
 
@@ -60,7 +60,9 @@ Start the Flask server:<br />
 Then, open your browser and navigate to *http://localhost:5000* to use the application.<br /><br />
 
 ## Data Processing
-The "*Patent scraped data.py*" script handles the conversion of raw patent XML data into a JSON format. This data (stored in "*ipg240102.json*") is used for populating the patent database and demonstrating the search functionality.<br /><br />
+The "*Patent scraped data.py*" script handles the conversion of raw patent XML data into a JSON format. This data (stored in a .json file) is used for populating the patent database and demonstrating the search functionality.<br />
+To get a correct XML file to process, head to "https://bulkdata.uspto.gov/" and download a zip file under the section "Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)."<br />
+Unzip the file into the "data scrapper" file, and then you may run the python file.<br />
 
 ## Authors
 - **Team Members:** Kathleen Sachez, Cade Mock, Cole Mattern, Alex Pittman, Darrnell Lampkin, Parker Jung, and Charan Jagwani
