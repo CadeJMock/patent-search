@@ -4,20 +4,66 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: #003c7c; /* Primary background color */
+    background-image: url('PatentFinderApp\resources\Fish.png');
+    
 }
 
 .container {
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     border-radius: 8px; /* rounds the corner */
-    padding: 30px;
+    padding-top: 20px; /*padding: 30px;*/
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* adds a shadow effect */
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.logo-left {
+    width: 200px;
+    height: 75px;
+    position: absolute;
+    left: 0;
+    padding-left: 4%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.logo-right {
+    width: 200px;
+    height: 75px;
+    position: absolute;
+    right: 0;
+    padding-right: 4%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.title-container {
+    display: flex;
+    flex-direction: column;
 }
 
 h1 {
     text-align: center;
     color: #2c3e50;
-    margin-bottom: 30px;
+    font-size: 42px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin: 0;
+    padding: 0;
+    font-size: 24px;
 }
 
 .search-container {
