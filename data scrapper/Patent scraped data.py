@@ -115,16 +115,16 @@ def parse_patent_xml(xml_string):
             desc_elem = root.find(path)  # attempt to find an element at this path
             if desc_elem is not None and desc_elem.text:  # check if element exists and has text content
                 description = desc_elem.text  # store the text content as the patent description
+                if description == "\n\n": # empty descriptions are grabbed as "\n\n", setting the descriptions to an
+                    description = "" # empty string will not mess with the search function
                 break  # stop searching once we've found a valid description
         
         # dictionary to store all the extracted patent information
-        patent_data = {
-            "patent_id": patent_id if patent_id else "N/A",
-            "title": title if title else "N/A",
-            "authors": authors if authors else "N/A",
-            "expiration_date": "N/A",  # This field is set to "N/A" as expiration dates aren't typically in raw XML apparently,
-            # we might have to just remove the expiration date from our table/information; but in case we switch data sets then keep it for now.
-            "description": description if description else "N/A"
+        patent_data = { # Can change the 'else ""' statement back to 'else "N/A"' later on, if we exclude "N/A" from our search function
+            "patent_id": patent_id if patent_id else "",
+            "title": title if title else "",
+            "authors": authors if authors else "",
+            "description": description if description else ""
         }
         
         # return the completed patent data dictionary
