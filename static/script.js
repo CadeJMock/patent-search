@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                 headers: {
                     'Content-Type': 'application/json' // tell the server we are sending JSON data
                 },
-                body: JSON.stringify({ query: searchTerm }) // conver the search term to JSON
+                body: JSON.stringify({ query: searchTerm }) // convert the search term to JSON
             });
             
             if (!response.ok) { // check if the HTTP request was successful (status code: 200-299)
@@ -60,8 +60,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                             <div class="patent-details">
                                 <strong>ID:</strong> ${patent.id} | 
                                 <strong>Author(s):</strong> ${patent.authors} | 
-                                <strong>Filed:</strong> ${patent.date} | 
-                                <strong>Expires:</strong> ${patent.expire_date}
+                                <strong>Filed:</strong> ${patent.date}
                             </div>
                             <div class="patent-description">${patent.description}</div>
                         </div>
