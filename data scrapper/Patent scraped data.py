@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET # for processing XML data using a tree struct
 from datetime import datetime      # datetime to track processing time and durations
 
 # directory path to get .xml file
-data_dir = "data scrapper"
+data_dir = "patent-search\data scrapper"
 
 # get all XML files in the directory "data scrapper"
 xml_files = [f for f in os.listdir(data_dir) if f.endswith('.xml')]
