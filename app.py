@@ -57,7 +57,6 @@ def init_db():
             title TEXT NOT NULL,             -- Patent title
             authors TEXT NOT NULL,           -- Authors/investors of the patent
             date DATE NOT NULL,              -- Filing date
-            expire_date DATE NOT NULL,       -- Expiration date (usually 20 years after filing)
             description TEXT                 -- Brief description of the patent
         )
     ''')
@@ -72,44 +71,47 @@ def init_db():
         # each record contains all the fields defined in the table schema
         dummy_patents = [
             ('US10123456', 'Improved Solar Panel with Enhanced Energy Conversion', 'John Smith, Jane Doe', 
-             '2019-05-15', '2039-05-15', 'A solar panel design that increases energy conversion efficiency by 25% using a novel photovoltaic material.'),
+             '2019-05-15', 'A solar panel design that increases energy conversion efficiency by 25% using a novel photovoltaic material.'),
             
             ('US10234567', 'Smart Home Automation System', 'Michael Johnson, Emily Williams', 
-             '2020-02-10', '2040-02-10', 'An integrated system that connects and controls home devices through a centralized AI-powered hub.'),
+             '2020-02-10', 'An integrated system that connects and controls home devices through a centralized AI-powered hub.'),
             
             ('US10345678', 'Biodegradable Plastic Alternative', 'Robert Chen, Sarah Garcia', 
-             '2018-11-20', '2038-11-20', 'A fully biodegradable plastic alternative made from plant cellulose that decomposes within 3 months.'),
+             '2018-11-20', 'A fully biodegradable plastic alternative made from plant cellulose that decomposes within 3 months.'),
             
             ('US10456789', 'Quantum Cryptography Method', 'David Wilson, Lisa Brown', 
-             '2021-03-05', '2041-03-05', 'A secure communication method using quantum entanglement to detect eavesdropping attempts.'),
+             '2021-03-05', 'A secure communication method using quantum entanglement to detect eavesdropping attempts.'),
             
             ('US10567890', 'Advanced Water Filtration System', 'Thomas Anderson, Maria Rodriguez', 
-             '2017-08-12', '2037-08-12', 'A portable water filtration system that removes 99.9% of contaminants using graphene-based filters.'),
+             '2017-08-12', 'A portable water filtration system that removes 99.9% of contaminants using graphene-based filters.'),
             
             ('US10678901', 'Gesture-Based Computing Interface', 'Kevin Patel, Amanda Lee', 
-             '2020-10-30', '2040-10-30', 'A computer interface that detects precise hand gestures for intuitive control of digital environments.'),
+             '2020-10-30', 'A computer interface that detects precise hand gestures for intuitive control of digital environments.'),
             
             ('US10789012', 'Artificial Neural Network for Medical Diagnosis', 'James Taylor, Sophia Martinez', 
-             '2019-04-22', '2039-04-22', 'A specialized neural network designed to analyze medical imagery and assist in early disease detection.'),
+             '2019-04-22', 'A specialized neural network designed to analyze medical imagery and assist in early disease detection.'),
             
             ('US10890123', 'Energy Efficient Refrigeration Technology', 'Christopher Davis, Olivia Wang', 
-             '2018-07-08', '2038-07-08', 'A cooling system that reduces energy consumption by 40% through a novel thermodynamic cycle.'),
+             '2018-07-08', 'A cooling system that reduces energy consumption by 40% through a novel thermodynamic cycle.'),
             
             ('US10901234', 'Augmented Reality Educational Tool', 'Richard Miller, Elizabeth Jones', 
-             '2021-01-15', '2041-01-15', 'An educational platform that uses augmented reality to create interactive learning experiences.'),
+             '2021-01-15', 'An educational platform that uses augmented reality to create interactive learning experiences.'),
             
             ('US11012345', 'Wireless Power Transmission System', 'Daniel White, Jennifer Kim', 
-             '2017-12-03', '2037-12-03', 'A system for transmitting electrical power without wires using resonant inductive coupling.'),
+             '2017-12-03', 'A system for transmitting electrical power without wires using resonant inductive coupling.'),
             
             ('US11012346', 'Wireless Home Fridge', 'Cade M', 
-             '2018-12-07', '2037-3-05', 'A wireless fridge #test.')
+             '2018-12-07', 'N/A'), # N/A will not be prevelant in the final project. Will remove descriptions that end up as "N/A" so it doesn't effect search
+            
+            ('US11032814', 'Testing System', 'John Smith', 
+             '2018-2-13', '')
         ]
         
         # executemany() efficiently executes the same SQL for multiple parameter sets
         # this will insert all the dummy patents in one database operation
         cursor.executemany('''
-            INSERT INTO patents (id, title, authors, date, expire_date, description)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO patents (id, title, authors, date, description)
+            VALUES (%s, %s, %s, %s, %s)
         ''', dummy_patents)
     
     # clsoe the cursor and connection
@@ -139,11 +141,11 @@ def search_patents():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Execute SQL query to search for patents with titles matching the search query (THIS CAN BE EXPANDED LATER)
+        # Execute SQL query to search for patents with titles matching the search query (THIS SHOULD BE EXPANDED LATER)
         # ILIKE operator performs case-insensitive pattern matching
         # %query% looks for the search term anywhere in the title
         cursor.execute('''
-            SELECT id, title, authors, date, expire_date, description 
+            SELECT id, title, authors, date, description 
             FROM patents 
             WHERE title ILIKE %s
         ''', (f'%{search_query}%',))
@@ -163,8 +165,7 @@ def search_patents():
                 'title': row[1],
                 'authors': row[2],
                 'date': row[3].strftime('%Y-%m-%d'), # formate date as YYYY-MM-DD string
-                'expire_date': row[4].strftime('%Y-%m-%d'),
-                'description': row[5]
+                'description': row[4]
             })
         
         return jsonify(patents) # return the results as JSON to the front end
