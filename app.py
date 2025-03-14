@@ -147,8 +147,11 @@ def search_patents():
         cursor.execute('''
             SELECT id, title, authors, date, description 
             FROM patents 
-            WHERE title ILIKE %s
-        ''', (f'%{search_query}%',))
+            WHERE title ILIKE %s 
+            OR id ILIKE %s 
+            OR authors ILIKE %s 
+            OR TO_CHAR(date, 'YYYY-MM-DD') ILIKE %s
+        ''', (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
         
         results = cursor.fetchall() # fetch all the matching results
         
