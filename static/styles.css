@@ -68,19 +68,32 @@ h2 {
 }
 
 .search-container {
-    display: flex; /* creates flexible container to align the input and button side by side */
+    display: flex;
+    flex-direction: column; /* Stack input groups and button vertically */
+    align-items: center; /* Center align the inputs and button */
     margin-bottom: 20px;
-    padding: 0 30px; /* horizontal padding to fit in the white container */
+    padding: 0 30px;
 }
 
-#search-input {
-    flex: 1; /* makes the input field expand to fill the available space */
-    padding: 12px;
+.input-group {
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically */
+    margin-bottom: 15px; /* Add spacing between input groups */
+    width: 100%; /* Make inputs full-width within the container */
+    max-width: 400px; /* Optional: Limit the maximum width of inputs */
+}
+
+.input-group label {
+    margin-bottom: 5px; /* Space between label and input field */
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.input-group input {
+    padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
-    border-right: none; /* remove right border so it connects with the button seamlessly */
-    border-top-left-radius: 4px; /* round only the left corners of the input */
-    border-bottom-left-radius: 4px;
+    border-radius: 4px;
 }
 
 #search-button {
@@ -88,15 +101,17 @@ h2 {
     background-color: #3498db;
     color: white;
     border: none;
-    cursor: pointer; /* changes cursor to hand pointer on hover */
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+    cursor: pointer;
+    border-radius: 4px;
     font-size: 16px;
-    transition: background-color 0.3s; /* transition the color to the background-color smoothly on hover */
+    transition: background-color 0.3s;
+    width: 100%; /* Make the button full-width within the container */
+    max-width: 400px; /* Match the maximum width of the form fields */
+    text-align: center;
 }
 
 #search-button:hover {
-    background-color: #2980b9; /* blue for hover state */
+    background-color: #2980b9;
 }
 
 #results {
