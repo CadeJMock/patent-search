@@ -28,6 +28,28 @@ def get_db_connection():
     conn.autocommit = True
     return conn
 
+def format_patent_date(date_str):
+    """
+    Format patent date from YYYYMMDD to YYYY-MM-DD for PostgreSQL
+    
+    Args:
+        date_str: String containing date in YYYYMMDD format
+        
+    Returns:
+        Formatted date string or None if invalid
+    """
+    if not date_str or len(date_str) != 8:
+        return None
+        
+    try:
+        year = date_str[:4]
+        month = date_str[4:6]
+        day = date_str[6:8]
+        return f"{year}-{month}-{day}"
+    except (ValueError, IndexError):
+        print(f"Warning: Invalid date format: {date_str}")
+        return None
+
 def insert_patents_from_json(json_file):
     """Insert patent data from a JSON file into the database"""
     # initialize these to None to start in case exceptions occur
@@ -42,22 +64,42 @@ def insert_patents_from_json(json_file):
         # connecting to the database
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # count successfully inserted patents
+        success_count = 0
+        # count patents skipped due to formatting issues
+        skipped_count = 0
 
         # insert each patent into the database
         for patent in patents_data:
-            cursor.execute('''
-                INSERT INTO patents (id, title, authors, description)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (id) DO NOTHING;  -- Skip if the patent ID already exists
-            ''', (
-                patent.get('patent_id'),
-                patent.get('title'),
-                ", ".join(patent.get('authors', [])),  # converting list of authors to a comma-separated string
-                # patent.get('date', ''),  # default to empty string if date is missing - commenting out for now since the json doesn't have dates currently
-                patent.get('description', '')  # default to empty string if description is missing
-            ))
+            # format the patent date for PostgreSQL
+            patent_date_str = patent.get('patent_date', '')
+            formatted_grant_date = format_patent_date(patent_date_str)
+            
+            priority_date_str = patent.get('priority_date', '')
+            formatted_priority_date = format_patent_date(priority_date_str)
+            
+            try:
+                cursor.execute('''
+                    INSERT INTO patents (id, title, authors, grant_date, priority_date, description)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (id) DO NOTHING;  -- Skip if the patent ID already exists
+                ''', (
+                    patent.get('patent_id'),
+                    patent.get('title'),
+                    ", ".join(patent.get('authors', [])),  # converting list of authors to a comma-separated string
+                    formatted_grant_date,  # default to empty string if date is missing
+                    formatted_priority_date,
+                    patent.get('description', '')  # default to empty string if description is missing
+                ))
+                success_count += 1
+            except Exception as e:
+                print(f"Error inserting patent {patent.get('patent_id')}: {e}")
+                skipped_count += 1
 
-        print(f"Inserted {len(patents_data)} patents into the database.")
+        print(f"Inserted {success_count} patents into the database.")
+        if skipped_count > 0:
+            print(f"Skipped {skipped_count} patents due to errors")
         
     except json.JSONDecodeError as e:
         print(f"JSON parsing error: {e}")
