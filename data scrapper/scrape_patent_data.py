@@ -6,11 +6,16 @@ from datetime import datetime      # datetime to track processing time and durat
 import tkinter as tk               # tkinter for selecting the XML file location
 from tkinter import filedialog     # ^ using filedialog
 
+# https://bulkdata.uspto.gov/
+# Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)
+# ^ The section we are using in development, download and unzip the XML file from here
+
 root = tk.Tk() # create tkinter window and hide it
 root.withdraw()
 
 xml_file_path = filedialog.askopenfilename( # open file dialog
         title="Select an XML file",
+        initialdir="patent-search\data scrapper",
         filetypes=(
             ("XML files", "*.xml"), # limit the selection to XML files
         )
@@ -114,12 +119,62 @@ def parse_patent_xml(xml_string):
                 if description == "\n\n": # empty descriptions are grabbed as "\n\n", setting the descriptions to an
                     description = "" # empty string will not mess with the search function
                 break  # stop searching once we've found a valid description
+            
+        # initialize patent_date variable to store the patent's issue date
+        patent_date = None
+        # try multiple possible XML paths where the patent date might be located
+        for path in [
+            './/publication-reference//document-id/date', 
+            './/publication-reference/date', 
+            './/document-id/date', 
+            './/date-of-patent', 
+            './/grant-date', 
+            './/publication-date', 
+            './/date-publ', 
+            './/publication-reference//date'
+        ]:
+            date_elem = root.find(path)  # attempt to find an element at this path
+            if date_elem is not None and date_elem.text: # check if element exists and has text content
+                patent_date = date_elem.text # store the text content as the patent date
+                break # stop searching once we've found a valid date
+            
+        priority_date = None
+        for path in [
+            './/priority-claim//document-id/date',
+            './/priority-claim/date',
+            './/priority-date'
+        ]:
+            date_elem = root.find(path)
+            if date_elem is not None and date_elem.text:
+                priority_date = date_elem.text
+                break 
+            
+        if not priority_date:
+            filing_dates = []
+            for path in ['.//application-reference//document-id/date',
+                         './/application-reference//date',
+                         './/filing-date']:
+                for date_elem in root.findall(path):
+                    if date_elem is not None and date_elem.text:
+                        filing_dates.append(date_elem.text)
+            if filing_dates:
+                # if a patent (grant) date is available, filter filing dates to those that are earlier
+                if patent_date:
+                    valid_filing_dates = [d for d in filing_dates if d < patent_date]
+                    if valid_filing_dates:
+                        priority_date = min(valid_filing_dates)
+                    else:
+                        priority_date = min(filing_dates)
+                else:
+                    priority_date = min(filing_dates)
         
         # dictionary to store all the extracted patent information
         patent_data = { # Can change the 'else ""' statement back to 'else "N/A"' later on, if we exclude "N/A" from our search function
             "patent_id": patent_id if patent_id else "",
             "title": title if title else "",
             "authors": authors if authors else "",
+            "patent_date": patent_date if patent_date else "",
+            "priority_date": priority_date if priority_date else "",
             "description": description if description else ""
         }
         
