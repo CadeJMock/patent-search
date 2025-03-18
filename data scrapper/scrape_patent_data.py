@@ -3,31 +3,27 @@ import json                        # for encoding and decoding JSON data
 import re                          # for "regular expression" operations to identify patterns in text
 import xml.etree.ElementTree as ET # for processing XML data using a tree structure
 from datetime import datetime      # datetime to track processing time and durations
+import tkinter as tk               # tkinter for selecting the XML file location
+from tkinter import filedialog     # ^ using filedialog
 
-# directory path to get .xml file
-data_dir = "patent-search\data scrapper"
+root = tk.Tk() # create tkinter window and hide it
+root.withdraw()
 
-# get all XML files in the directory "data scrapper"
-xml_files = [f for f in os.listdir(data_dir) if f.endswith('.xml')]
+xml_file_path = filedialog.askopenfilename( # open file dialog
+        title="Select an XML file",
+        filetypes=(
+            ("XML files", "*.xml"), # limit the selection to XML files
+        )
+    )
 
-if xml_files:
-    # use the FIRST XML file found
-    xml_filename = xml_files[0]
-    # create full path to xml file - containing patent data (hopefully)
-    xml_file_path = os.path.join(data_dir, xml_filename)
-    
-    # generate the JSON filename by replacing .xml with .json
-    json_filename = os.path.splitext(xml_filename)[0] + '.json'
-    # create full path to json file - containing processed data
-    json_file_path = os.path.join(data_dir, json_filename)
-    
-    print(f"Found XML file: {xml_file_path}")
-    print(f"Will save to JSON file: {json_file_path}")
-else:
-    print("No XML files found in the 'data scrapper' directory.")
-    print("Please navigate to 'https://bulkdata.uspto.gov/' and download an XML file from the section: Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)")
-    print("Then, unzip the XML file into the correct directory and rerun the program.")
-    exit(1)
+root.destroy() # kill the tkinter window
+
+
+xml_file_name = os.path.basename(xml_file_path)
+json_file_name = os.path.splitext(xml_file_name)[0] + '.json'
+json_file_path = os.path.join("Extracted Patent Data", json_file_name) # create a resulting path for our .json data
+print(f"Chosen XML file: {xml_file_path}")
+print(f"Will save to JSON file: {json_file_path}\n")
 
 # create the directory structure for the output file if it doesn't already exist
 os.makedirs(os.path.dirname(json_file_path), exist_ok=True)  # exist_ok=True prevents errors if directory already exists
