@@ -123,7 +123,7 @@ def init_db():
 def index():
     """Serve the main HTML page"""
     # this sends the index.html file from the static folder to the client
-    # the frontend javascrip and css file will be loaded by the HTML file from there
+    # the frontend JavaScript and CSS file will be loaded by the HTML file from there
     return app.send_static_file('index.html')
 
 # define route for the search endpoint that accepts POST requests
@@ -131,7 +131,7 @@ def index():
 def search_patents():
     """Search for patents based on the query"""
     try:
-        data = request.get_json() # get the JSON data from the request (sent by frontend javascript)
+        data = request.get_json() # get the JSON data from the request object (incoming HTTP request data)
         search_query = data.get('query', '') # extract the search query from the JSON
         
         if not search_query: # validate the search query
@@ -187,5 +187,5 @@ if __name__ == '__main__': # this block only executes if the file is run directl
     
     # Start the Flask web server
     # host='0.0.0.0' makes the server accessible from any IP address
-    # debug=True enables some development features like auto-reloadin on code changes and etc.
+    # debug=True enables some development features like auto-reloading on code changes and etc.
     app.run(host='0.0.0.0', port=port, debug=True)

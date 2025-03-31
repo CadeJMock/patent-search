@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
     const loadingIndicator = document.getElementById('loading'); // loading message that appears during search
     
     // main search function that will be triggered when the user clicks search
-    // async function because we're using 'await' for the fetch request
+    // async function because we need to 'await' the fetch request
     async function performSearch() {
         const searchTerm = searchInput.value.trim(); // get the user input and trim whitespace
         
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             
-            // parse the JSON response from the server
+            // parse the response from the server as JSON
             // this contains the patent search result from the database
             const data = await response.json();
             
