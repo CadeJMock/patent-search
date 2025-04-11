@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
     const resultsContainer = document.getElementById('results'); // container where the search results will be displayed
     const loadingIndicator = document.getElementById('loading'); // loading message that appears during search
     
+    const tooltipIcon = document.getElementById('tooltip-icon'); // variables for the search tool tip
+    const tooltipText = document.querySelector('.tooltip-text'); // - text can be changed later
     // main search function that will be triggered when the user clicks search
     // async function because we need to 'await' the fetch request
     async function performSearch() {
@@ -84,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
         }
     }
     
-
     // event listeners to triger the search functon
     searchButton.addEventListener('click', performSearch); // run performSearch when the searchButton is clicked
     
@@ -94,4 +95,14 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
             performSearch();
         }
     });
+
+    tooltipIcon.addEventListener('mouseenter', function() {
+        tooltipText.style.visible = 'visible';
+        tooltipText.style.opacity = '1';
+    })
+
+    tooltipIcon.addEventListener('mouseleave', function() {
+        tooltipText.style.visible = 'hidden';
+        tooltipText.style.opacity = '0';
+    })
 });
