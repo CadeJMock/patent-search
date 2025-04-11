@@ -5,8 +5,10 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
     const resultsContainer = document.getElementById('results'); // container where the search results will be displayed
     const loadingIndicator = document.getElementById('loading'); // loading message that appears during search
     
+    const tooltipIcon = document.getElementById('tooltip-icon'); // variables for the search tool tip
+    const tooltipText = document.querySelector('.tooltip-text'); // - text can be changed later
     // main search function that will be triggered when the user clicks search
-    // async function because we're using 'await' for the fetch request
+    // async function because we need to 'await' the fetch request
     async function performSearch() {
         const searchTerm = searchInput.value.trim(); // get the user input and trim whitespace
         
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             
-            // parse the JSON response from the server
+            // parse the response from the server as JSON
             // this contains the patent search result from the database
             const data = await response.json();
             
@@ -84,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
         }
     }
     
-
     // event listeners to triger the search functon
     searchButton.addEventListener('click', performSearch); // run performSearch when the searchButton is clicked
     
@@ -94,4 +95,14 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
             performSearch();
         }
     });
+
+    tooltipIcon.addEventListener('mouseenter', function() {
+        tooltipText.style.visible = 'visible';
+        tooltipText.style.opacity = '1';
+    })
+
+    tooltipIcon.addEventListener('mouseleave', function() {
+        tooltipText.style.visible = 'hidden';
+        tooltipText.style.opacity = '0';
+    })
 });

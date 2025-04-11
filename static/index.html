@@ -17,21 +17,31 @@
             </div>
         </div>
         <div class="search-container">
-            <form id="search-form">
-                <div class="input-group">
-                    <label for="id-input">Patent ID:</label>
-                    <input type="text" id="id-input" placeholder="Enter Patent ID">
+            <div class="search-input-wrapper">
+                <form id="search-form">
+                    <div class="input-group">
+                        <label for="id-input">Patent ID:</label>
+                        <input type="text" id="id-input" placeholder="Enter Patent ID">
+                    </div>
+                    <div class="input-group">
+                        <label for="title-input">Title:</label>
+                        <input type="text" id="title-input" placeholder="Enter Patent Title">
+                    </div>
+                    <div class="input-group">
+                        <label for="author-input">Author(s):</label>
+                        <input type="author" id="author-input" placeholder="Enter Patent Author(s)">
+                    </div>
+                    <div class="input-group">
+                        <label for="date-input">Date:</label>
+                        <input type="date" id="date-input">
+                    </div>
+                    <button type="submit" id="search-button">Search</button>
+                </form>
+                <div class="tooltip-container">
+                    <span class="info-icon" id="tooltip-icon">i</span>
+                    <span class="tooltip-text">Enter your search term to find patents matching the ID, title, authors, or dates.</br></br>Dates are formatted in:</br>'YYYY-MM-DD'</span>
                 </div>
-                <div class="input-group">
-                    <label for="title-input">Title:</label>
-                    <input type="text" id="title-input" placeholder="Enter Patent Title">
-                </div>
-                <div class="input-group">
-                    <label for="date-input">Date:</label>
-                    <input type="date" id="date-input">
-                </div>
-                <button type="submit" id="search-button">Search</button>
-            </form>
+            </div>
         </div>
 
         <div id="loading" class="loading" style="display: none;">Searching...</div>

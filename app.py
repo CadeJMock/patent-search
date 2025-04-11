@@ -1,5 +1,5 @@
 # RUN EVERYTHING BY DOING THE FOLLOWING:
-# (terminal) -> python app.py
+# (terminal) -> python app.py (or run python file in a drop down)
 # (web browser) -> http://localhost:5000 (do not just open the html file, it won't connect to the backend)
 
 from flask import Flask, request, jsonify # Flask for web server, request/jsonify for handling HTTP requests/responses
@@ -22,7 +22,7 @@ DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_NAME = os.getenv("DB_NAME", "patent_db")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASS = os.getenv("DB_PASS", "password")
-DB_PORT = os.getenv("DB_PORT", "5432")
+DB_PORT = os.getenv("DB_PORT", "5000")
 
 def get_db_connection():
     """Establish a connection to the PostgreSQL database"""
@@ -39,7 +39,7 @@ def get_db_connection():
     conn.autocommit = True
     return conn
 
-def init_db():
+#def init_db():
     """Initialize database with dummy patent data"""
     # get a connection to the database
     conn = get_db_connection()
@@ -123,7 +123,7 @@ def init_db():
 def index():
     """Serve the main HTML page"""
     # this sends the index.html file from the static folder to the client
-    # the frontend javascrip and css file will be loaded by the HTML file from there
+    # the frontend JavaScript and CSS file will be loaded by the HTML file from there
     return app.send_static_file('index.html')
 
 # define route for the search endpoint that accepts POST requests
@@ -131,29 +131,38 @@ def index():
 def search_patents():
     """Search for patents based on the query"""
     try:
-        data = request.get_json() # get the JSON data from the request (sent by frontend javascript)
+        data = request.get_json() # get the JSON data from the request object (incoming HTTP request data)
         search_query = data.get('query', '') # extract the search query from the JSON
+        print("/search, data and search_query should be initialized")
+        print("search_query = " + search_query)
         
         if not search_query: # validate the search query
             return jsonify([]) # if it is empty query, return an empty list of results
         
+        print("before connecting to database")
         # connect to the database
         conn = get_db_connection()
         cursor = conn.cursor()
+        print("after connecting to database")
         
         # Execute SQL query to search for patents with titles matching the search query (THIS SHOULD BE EXPANDED LATER)
         # ILIKE operator performs case-insensitive pattern matching
         # %query% looks for the search term anywhere in the title
+        print("before cursor.execute")
         cursor.execute('''
-            SELECT id, title, authors, date, description 
+            SELECT id, title, authors, grant_date, priority_date, description 
             FROM patents 
             WHERE title ILIKE %s 
             OR id ILIKE %s 
             OR authors ILIKE %s 
-            OR TO_CHAR(date, 'YYYY-MM-DD') ILIKE %s
-        ''', (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
+            OR TO_CHAR(grant_date, 'YYYY-MM-DD') ILIKE %s 
+            OR TO_CHAR(priority_date, 'YYYY-MM-DD') ILIKE %s 
+        ''', (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
+        print("after cursor.execute")
         
+        print("before results =")
         results = cursor.fetchall() # fetch all the matching results
+        print("after results =")
         
         # close the database connections
         cursor.close()
@@ -161,6 +170,7 @@ def search_patents():
         
         # format results as a list of dictionaries for JSON serialization
         # this transforms the database rows into a format thats suitable for our frontend
+        print("before patents result formatting")
         patents = []
         for row in results:
             patents.append({
@@ -170,7 +180,7 @@ def search_patents():
                 'date': row[3].strftime('%Y-%m-%d'), # formate date as YYYY-MM-DD string
                 'description': row[4]
             })
-        
+        print("after patents result formatting")
         return jsonify(patents) # return the results as JSON to the front end
     
     except Exception as e:
@@ -179,13 +189,10 @@ def search_patents():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__': # this block only executes if the file is run directly (not imported)
-    # initialize the database before starting the app
-    # this creates the table and populates it with sample data if needed
-    init_db()
-    
-    port = int(os.getenv("PORT", 5000)) # get the port from environment variable or use 5000 as default
-    
+    port = int(os.getenv("PORT", 5000))
     # Start the Flask web server
     # host='0.0.0.0' makes the server accessible from any IP address
-    # debug=True enables some development features like auto-reloadin on code changes and etc.
+    # debug=True enables some development features like auto-reloading on code changes and etc.
+    #conn = get_db_connection()
+    #cursor = conn.cursor()
     app.run(host='0.0.0.0', port=port, debug=True)
