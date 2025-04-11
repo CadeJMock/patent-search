@@ -1,16 +1,25 @@
 document.addEventListener('DOMContentLoaded', function() { // wait for the DOM to be fully loaded before executing anything
     // all the references to the DOM elements we need to interact with for now
-    const searchInput = document.getElementById('search-input'); // text input field
     const searchButton = document.getElementById('search-button'); // button to trigger the search
+    const searchForm = document.getElementById('search-form')
     const resultsContainer = document.getElementById('results'); // container where the search results will be displayed
     const loadingIndicator = document.getElementById('loading'); // loading message that appears during search
-    
     const tooltipIcon = document.getElementById('tooltip-icon'); // variables for the search tool tip
     const tooltipText = document.querySelector('.tooltip-text'); // - text can be changed later
+
+    document.getElementById("search-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        var form = this;
+
+        var formData = new FormData(form);
+
+        console.log("Form submitted");
+        console.log(Object.fromEntries(formData));
+    })
     // main search function that will be triggered when the user clicks search
     // async function because we need to 'await' the fetch request
     async function performSearch() {
-        const searchTerm = searchInput.value.trim(); // get the user input and trim whitespace
         
         if (searchTerm === '') { // validate that the user actually entered something
             // if no search term is provided, show a messgage and exit function
@@ -85,16 +94,11 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
             console.error('Search error:', error);
         }
     }
-    
-    // event listeners to triger the search functon
-    searchButton.addEventListener('click', performSearch); // run performSearch when the searchButton is clicked
-    
-    // also perform the search when the user presses Enter while in the search input field
-    searchInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            performSearch();
-        }
-    });
+
+
+
+
+
 
     tooltipIcon.addEventListener('mouseenter', function() {
         tooltipText.style.visible = 'visible';
