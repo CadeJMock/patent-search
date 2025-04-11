@@ -96,6 +96,12 @@ h2 {
     border-radius: 4px;
 }
 
+#search-input {
+    margin-bottom: 10px;
+    max-width: 400px;
+    width: 100%
+}
+
 #search-button {
     padding: 12px 20px;
     background-color: #3498db;
