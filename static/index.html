@@ -5,6 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patent Finder</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Add some basic styles for the tabs */
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1; /* Default background */
+            border: 1px solid #ccc;
+            border-bottom: none;
+            margin-right: 5px;
+            color: black; /* Default text color */
+        }
+
+        .tab.active {
+            background-color: white; /* active tab background */
+            border-bottom: 2px solid white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* General styling for the theme selection */
+        .theme-selection {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Theme styles */
+        .dark-theme {
+            background-color: #333;
+            color: white;
+        }
+
+        .dark-theme .container {
+            background-color: #555; /* Make the main section grey for dark theme */
+            padding: 20px;
+        }
+
+        .dark-theme .tab {
+            background-color: #444; /* Darker background for tabs in dark theme */
+            color: black; /* Black text for tabs in dark theme */
+        }
+
+        .dark-theme .tab.active {
+            background-color: #666; /* Active tab background in dark theme */
+            color: black; /* Ensure active tab text is black */
+        }
+
+        .light-theme {
+            background-color: #f9f9f9;
+            color: black;
+        }
+
+        /* Ensure container has some padding and looks nice in light theme */
+        .container {
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -16,42 +84,115 @@
                 <h2>Patent Finder</h2>
             </div>
         </div>
-        <div class="search-container">
-            <div class="search-input-wrapper">
-                <form id="search-form">
-                    <div class="input-group">
-                        <label for="id-input">Patent ID:</label>
-                        <input type="text" id="id-input" name="patentId" placeholder="Enter Patent ID">
+
+        <!-- Theme selection section -->
+        <div class="theme-selection">
+            <label for="theme-selector">Select Color Theme:</label>
+            <select id="theme-selector" onchange="changeTheme()">
+                <option value="default">Default</option>
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+            </select>
+        </div>
+
+        <!-- Tab navigation -->
+        <div class="tab-container">
+            <div class="tab active" onclick="showTab('search')">Search</div>
+            <div class="tab" onclick="showTab('history')">Search History</div>
+        </div>
+
+        <!-- Search Tab Content -->
+        <div id="search" class="tab-content active">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <form id="search-form" onsubmit="return handleSearch();">
+                        <div class="input-group">
+                            <label for="id-input">Patent ID:</label>
+                            <input type="text" id="id-input" name="patentId" placeholder="Enter Patent ID">
+                        </div>
+                        <div class="input-group">
+                            <label for="title-input">Title:</label>
+                            <input type="text" id="title-input" name="title" placeholder="Enter Patent Title">
+                        </div>
+                        <div class="input-group">
+                            <label for="author-input">Author(s):</label>
+                            <input type="text" id="author-input" name="authors" placeholder="Enter Patent Author(s)">
+                        </div>
+                        <div class="input-group">
+                            <label for="date-input">Date:</label>
+                            <input type="date" id="date-input" name="date">
+                        </div>
+                        <button type="submit" id="search-button">Search</button>
+                    </form>
+                    <div class="tooltip-container">
+                        <span class="info-icon" id="tooltip-icon">i</span>
+                        <span class="tooltip-text">Enter your search term to find patents matching the ID, title, authors, or dates.</span>
                     </div>
-                    <div class="input-group">
-                        <label for="title-input">Title:</label>
-                        <input type="text" id="title-input" name="title" placeholder="Enter Patent Title">
-                    </div>
-                    <div class="input-group">
-                        <label for="author-input">Author(s):</label>
-                        <input type="author" id="author-input" name="authors" placeholder="Enter Patent Author(s)">
-                    </div>
-                    <div class="input-group">
-                        <label for="date-input">Date:</label>
-                        <input type="date" id="date-input" name="date">
-                    </div>
-                    <button type="submit" id="search-button">Search</button>
-                </form>
-                <div class="tooltip-container">
-                    <span class="info-icon" id="tooltip-icon">i</span>
-                    <span class="tooltip-text">Enter your search term to find patents matching the ID, title, authors, or dates.</span>
                 </div>
+            </div>
+            <div id="loading" class="loading" style="display: none;">Searching...</div>
+            <div id="results">
+                <p class="no-results">Enter a search term to find patents.</p>
             </div>
         </div>
 
-        <div id="loading" class="loading" style="display: none;">Searching...</div>
-
-        <div id="results">
-            <!-- results will be displayed here -->
-            <p class="no-results">Enter a search term to find patents.</p>
+        <!-- Search History Tab Content -->
+        <div id="history" class="tab-content">
+            <h2>Search History</h2>
+            <p>No search history available.</p>
+            <ul id="history-list">
+                <!-- Previous searches will be added here -->
+            </ul>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show the selected tab content
+            document.getElementById(tabName).classList.add('active');
+            // Set the clicked tab as active
+            event.currentTarget.classList.add('active');
+        }
+
+        function handleSearch() {
+            // Implement search handling logic here
+            let patentId = document.getElementById('id-input').value;
+            let title = document.getElementById('title-input').value;
+            let authors = document.getElementById('author-input').value;
+            let date = document.getElementById('date-input').value;
+
+            // Example: Adding search details to the history
+            let historyList = document.getElementById('history-list');
+            let newHistoryItem = document.createElement('li');
+            newHistoryItem.textContent = `Patent ID: ${patentId}, Title: ${title}, Authors: ${authors}, Date: ${date}`;
+            historyList.appendChild(newHistoryItem);
+
+            // Prevent form submission
+            return false;
+        }
+
+        function changeTheme() {
+            const themeSelector = document.getElementById('theme-selector');
+            const selectedTheme = themeSelector.value;
+
+            // Clear existing theme classes
+            document.body.className = '';
+
+            // Add the selected theme class to the body
+            if (selectedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else if (selectedTheme === 'light') {
+                document.body.classList.add('light-theme');
+            }
+        }
+    </script>
 </body>
 </html>
