@@ -7,26 +7,28 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
     const tooltipIcon = document.getElementById('tooltip-icon'); // variables for the search tool tip
     const tooltipText = document.querySelector('.tooltip-text'); // - text can be changed later
 
-    document.getElementById("search-form").addEventListener("submit", function(e) {
+     // Form submission handler
+     searchForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        performSearch(new FormData(this));
+    });
 
-        var form = this;
-
-        var formData = new FormData(form);
-
-        console.log("Form submitted");
-        console.log(Object.fromEntries(formData));
-    })
     // main search function that will be triggered when the user clicks search
     // async function because we need to 'await' the fetch request
-    async function performSearch() {
+    async function performSearch(formData) {
+
+        // convert FormData to object
+        const searchParams = Object.fromEntries(formData);
         
-        if (searchTerm === '') { // validate that the user actually entered something
-            // if no search term is provided, show a messgage and exit function
+        // validate at least one field has content
+        const hasQuery = Object.values(searchParams).some(value => value && value.toString().trim() !== '');
+        
+        if (!hasQuery) {
+            // if no fields are filled, show an error message
             resultsContainer.innerHTML = '<p class="no-results">Please enter a search term.</p>';
-            return;
+            return; // exit the function early
         }
-        
+
         // Show loading indicator to indicate search in progress
         loadingIndicator.style.display = 'block';
         // clear any previous results
@@ -40,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                 headers: {
                     'Content-Type': 'application/json' // tell the server we are sending JSON data
                 },
-                body: JSON.stringify({ query: searchTerm }) // convert the search term to JSON
+                body: JSON.stringify({searchParams}) // convert the search term to JSON
             });
             
             if (!response.ok) { // check if the HTTP request was successful (status code: 200-299)
@@ -101,12 +103,12 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
 
 
     tooltipIcon.addEventListener('mouseenter', function() {
-        tooltipText.style.visible = 'visible';
+        tooltipText.style.display = 'block';
         tooltipText.style.opacity = '1';
     })
 
     tooltipIcon.addEventListener('mouseleave', function() {
-        tooltipText.style.visible = 'hidden';
+        tooltipText.style.display = 'none';
         tooltipText.style.opacity = '0';
     })
 });
