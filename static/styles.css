@@ -1,6 +1,5 @@
+/* Global layout and base styles */
 html, body {
-    margin: 0;
-    padding: 0;
     height: 100%;
     width: 100%;
 }
@@ -15,6 +14,21 @@ body {
     background: linear-gradient(0deg, rgba(0, 60, 124, 1) 0%, rgba(0, 38, 79, 1) 50%, rgba(0, 13, 28, 1) 100%);
 }
 
+/* Typography styles */
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 42px;
+    font-weight: 700;
+}
+
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 24px;
+}
+
+/* Main layout container */
 .container {
     background-color: #f3f3f3;
     border-radius: 8px; /* rounds the corner */
@@ -24,12 +38,18 @@ body {
     position: relative;
 }
 
+/* Header section styles */
 .header-container {
     display: flex;
     align-items: center;
     position: relative;
     margin-bottom: 20px;
     justify-content: center;
+}
+
+.title-container {
+    display: flex;
+    flex-direction: column;
 }
 
 .logo-left {
@@ -54,28 +74,7 @@ body {
     max-width: 200px;
 }
 
-.title-container {
-    display: flex;
-    flex-direction: column;
-}
-
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    font-size: 42px;
-    font-weight: 700;
-    margin: 0;
-    padding: 0;
-}
-
-h2 {
-    text-align: center;
-    color: #2c3e50;
-    margin: 0;
-    padding: 0;
-    font-size: 24px;
-}
-
+/* Search form styles */
 .search-container {
     display: flex;
     flex-direction: column; /* Stack input groups and button vertically */
@@ -85,17 +84,17 @@ h2 {
     padding: 0 30px;
 }
 
-.search-input-wrapper{
+.search-input-wrapper {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    flex-direction: column;
     width: 100%;
+    position: relative;
 }
 
 .input-group {
     display: flex;
     flex-direction: column; /* Stack label and input vertically */
-
     margin-bottom: 15px; /* Add spacing between input groups */
     width: 100%; /* Make inputs full-width within the container */
     max-width: 400px; /* Optional: Limit the maximum width of inputs */
@@ -114,22 +113,7 @@ h2 {
     border-radius: 4px;
 }
 
-/* Search input styling */
-#search-input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.search-input-wrapper {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    position: relative;
-}
-
-/* Search button styling */
+/* Search button styles */
 #search-button {
     width: 100%;
     padding: 10px;
@@ -145,6 +129,7 @@ h2 {
     background-color: #2980b9;
 }
 
+/* Results section styles */
 #results {
     margin-top: 30px;
     padding: 0px 30px; /* horizontal padding to fit in the white container */
@@ -155,6 +140,7 @@ h2 {
     overflow: auto;
 }
 
+/* Patent display styles */
 .patent-item {
     border: 1px solid #ddd;
     padding: 15px;
@@ -179,6 +165,7 @@ h2 {
     color: #34495e;
 }
 
+/* Status message styles */
 .no-results {
     text-align: center;
     color: #7f8c8d; /* same as patent-details */
