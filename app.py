@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify # Flask for web server, request/jsonif
 import psycopg2 # PostgreSQL adapter for Python
 import os # Operating system interface for environment variables
 from dotenv import load_dotenv # For loading environment variables from .env file
+from datetime import datetime # For date validation
 
 # Load environment variables from .env file
 # (This just allows us to keep database credentials outside of the code, change the .env file to your own names and passwords)
@@ -131,67 +132,76 @@ def index():
 def search_patents():
     """Search for patents based on the query"""
     try:
-        data = request.get_json() # get the JSON data from the request object (incoming HTTP request data)
-        search_params = data.get('searchParams', {}) # extract the search parameters from the JSON
-        print("/search, data and search_params should be initialized")
-        print("search_params = " + str(search_params))
-        
-        # Get the first non-empty search parameter
-        search_query = next((value for value in search_params.values() if value and value.strip()), '')
-        
-        if not search_query: # validate the search query
-            return jsonify([]) # if it is empty query, return an empty list of results
-        
-        print("before connecting to database")
-        # connect to the database
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        print("after connecting to database")
-        
-        # Execute SQL query to search for patents with titles matching the search query (THIS SHOULD BE EXPANDED LATER)
-        # ILIKE operator performs case-insensitive pattern matching
-        # %query% looks for the search term anywhere in the title
-        print("before cursor.execute")
-        cursor.execute('''
+        search_data = request.get_json()
+        print(f"Search request received: {search_data}")
+
+        # validate at least one field has content
+        if not search_data or not any(v.strip() for v in search_data.values() if v):
+            return jsonify({'error': 'Please provide at least one search term'}), 400
+
+        # build the base query
+        base_query = '''
             SELECT id, title, authors, date, description 
             FROM patents 
-            WHERE title ILIKE %s 
-            OR id ILIKE %s 
-            OR authors ILIKE %s 
-            OR TO_CHAR(date, 'YYYY-MM-DD') ILIKE %s 
-        ''', (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
-        print("after cursor.execute")
+            WHERE 1=1  # Allows easy AND concatenation
+        '''
+        query_params = []
+
+        # add field specific conditions
+        # title search (partial match)
+        if 'title' in search_data and search_data['title'].strip():
+            base_query += " AND title ILIKE %s"
+            query_params.append(f"%{search_data['title'].strip()}%")
+
+        # authors search /partial match
+        if 'authors' in search_data and search_data['authors'].strip():
+            base_query += " AND authors ILIKE %s"
+            query_params.append(f"%{search_data['authors'].strip()}%")
+
+        # patent ID search /partial match
+        if 'id' in search_data and search_data['id'].strip():
+            base_query += " AND id ILIKE %s"
+            query_params.append(f"%{search_data['id'].strip()}%")
+
+        # date search (exact match with validation)
+        if 'date' in search_data and search_data['date'].strip():
+            try:
+                datetime.strptime(search_data['date'].strip(), '%Y-%m-%d')
+                base_query += " AND date = %s"
+                query_params.append(search_data['date'].strip())
+            except ValueError:
+                return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
+        # execute query
+        conn = get_db_connection()
+        cursor = conn.cursor()
         
-        print("before results =")
-        results = cursor.fetchall() # fetch all the matching results
-        print("after results =")
+        print(f"Executing query: {base_query}")
+        print(f"With parameters: {query_params}")
         
-        # close the database connections
+        cursor.execute(base_query, query_params)
+        results = cursor.fetchall()
+
+        # format the results 
+        patents = [{
+            'id': row[0],
+            'title': row[1],
+            'authors': row[2],
+            'date': row[3].strftime('%Y-%m-%d'),
+            'description': row[4] if row[4] else 'No description available'
+        } for row in results]
+        
         cursor.close()
         conn.close()
         
-        # format results as a list of dictionaries for JSON serialization
-        # this transforms the database rows into a format thats suitable for our frontend
-        print("before patents result formatting")
-        patents = []
-        for row in results:
-            patents.append({
-                'id': row[0],
-                'title': row[1],
-                'authors': row[2],
-                'date': row[3].strftime('%Y-%m-%d'), # formate date as YYYY-MM-DD string
-                'description': row[4]
-            })
-        print("after patents result formatting")
-        return jsonify(patents) # return the results as JSON to the front end
-    
+        return jsonify(patents)
+
+    except psycopg2.Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': 'Database operation failed'}), 500
     except Exception as e:
-        # handle any exceptions that occur during processing
-        # return an error response with HTTP status code 500 (Internal Service Error)
-        print("Error occurred:", str(e))  # Print the full error message
-        import traceback
-        print("Full traceback:", traceback.format_exc())  # Print the full traceback
-        return jsonify({'error': str(e)}), 500
+        print(f"Unexpected error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__': # this block only executes if the file is run directly (not imported)
     port = int(os.getenv("PORT", 5000))
