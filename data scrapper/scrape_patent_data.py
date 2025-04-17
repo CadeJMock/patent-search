@@ -15,7 +15,7 @@ root.withdraw()
 
 xml_file_path = filedialog.askopenfilename( # open file dialog
         title="Select an XML file",
-        initialdir="patent-search\data scrapper",
+        initialdir=r"patent-search\data scrapper",  # Using raw string to fix escape sequence
         filetypes=(
             ("XML files", "*.xml"), # limit the selection to XML files
         )
@@ -23,6 +23,9 @@ xml_file_path = filedialog.askopenfilename( # open file dialog
 
 root.destroy() # kill the tkinter window
 
+if not xml_file_path:  # Check if no file was selected
+    print("No file was selected. Exiting...")
+    exit()
 
 xml_file_name = os.path.basename(xml_file_path)
 json_file_name = os.path.splitext(xml_file_name)[0] + '.json'
@@ -169,12 +172,11 @@ def parse_patent_xml(xml_string):
                     priority_date = min(filing_dates)
         
         # dictionary to store all the extracted patent information
-        patent_data = { # Can change the 'else ""' statement back to 'else "N/A"' later on, if we exclude "N/A" from our search function
-            "patent_id": patent_id if patent_id else "",
+        patent_data = {
+            "id": patent_id if patent_id else "",  # Changed from patent_id to id to match DB schema
             "title": title if title else "",
-            "authors": authors if authors else "",
-            "patent_date": patent_date if patent_date else "",
-            "priority_date": priority_date if priority_date else "",
+            "authors": ", ".join(authors) if authors else "",  # Join authors list into comma-separated string
+            "date": patent_date if patent_date else "",  # Changed from patent_date to date to match DB schema
             "description": description if description else ""
         }
         
