@@ -11,7 +11,7 @@ load_dotenv()
 # the database connection param
 # remember to change your specific .env file to your database params
 DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_NAME = os.getenv("DB_NAME", "patent_db")
+DB_NAME = os.getenv("DB_NAME", "patents")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASS = os.getenv("DB_PASS", "password")
 DB_PORT = os.getenv("DB_PORT", "5432")
@@ -81,20 +81,19 @@ def insert_patents_from_json(json_file):
             
             try:
                 cursor.execute('''
-                    INSERT INTO patents (id, title, authors, grant_date, priority_date, description)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO patents (id, title, authors, date, description)
+                    VALUES (%s, %s, %s, %s, %s)
                     ON CONFLICT (id) DO NOTHING;  -- Skip if the patent ID already exists
                 ''', (
-                    patent.get('patent_id'),
+                    patent.get('id'),
                     patent.get('title'),
-                    ", ".join(patent.get('authors', [])),  # converting list of authors to a comma-separated string
-                    formatted_grant_date,  # default to empty string if date is missing
-                    formatted_priority_date,
-                    patent.get('description', '')  # default to empty string if description is missing
+                    patent.get('authors'),
+                    formatted_grant_date,
+                    patent.get('description', '')
                 ))
                 success_count += 1
             except Exception as e:
-                print(f"Error inserting patent {patent.get('patent_id')}: {e}")
+                print(f"Error inserting patent {patent.get('id')}: {e}")
                 skipped_count += 1
 
         print(f"Inserted {success_count} patents into the database.")

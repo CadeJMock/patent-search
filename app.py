@@ -19,7 +19,7 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 # get database connection paramteres from environment variables
 # the second parameter in each getenv() is the default value if the variable isn't found
 DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_NAME = os.getenv("DB_NAME", "patent_db")
+DB_NAME = os.getenv("DB_NAME", "patents")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASS = os.getenv("DB_PASS", "password")
 DB_PORT = os.getenv("DB_PORT", "5000")
@@ -39,7 +39,7 @@ def get_db_connection():
     conn.autocommit = True
     return conn
 
-#def init_db():
+def init_db():
     """Initialize database with dummy patent data"""
     # get a connection to the database
     conn = get_db_connection()
@@ -132,9 +132,12 @@ def search_patents():
     """Search for patents based on the query"""
     try:
         data = request.get_json() # get the JSON data from the request object (incoming HTTP request data)
-        search_query = data.get('query', '') # extract the search query from the JSON
-        print("/search, data and search_query should be initialized")
-        print("search_query = " + search_query)
+        search_params = data.get('searchParams', {}) # extract the search parameters from the JSON
+        print("/search, data and search_params should be initialized")
+        print("search_params = " + str(search_params))
+        
+        # Get the first non-empty search parameter
+        search_query = next((value for value in search_params.values() if value and value.strip()), '')
         
         if not search_query: # validate the search query
             return jsonify([]) # if it is empty query, return an empty list of results
@@ -150,14 +153,13 @@ def search_patents():
         # %query% looks for the search term anywhere in the title
         print("before cursor.execute")
         cursor.execute('''
-            SELECT id, title, authors, grant_date, priority_date, description 
+            SELECT id, title, authors, date, description 
             FROM patents 
             WHERE title ILIKE %s 
             OR id ILIKE %s 
             OR authors ILIKE %s 
-            OR TO_CHAR(grant_date, 'YYYY-MM-DD') ILIKE %s 
-            OR TO_CHAR(priority_date, 'YYYY-MM-DD') ILIKE %s 
-        ''', (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
+            OR TO_CHAR(date, 'YYYY-MM-DD') ILIKE %s 
+        ''', (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
         print("after cursor.execute")
         
         print("before results =")
@@ -186,6 +188,9 @@ def search_patents():
     except Exception as e:
         # handle any exceptions that occur during processing
         # return an error response with HTTP status code 500 (Internal Service Error)
+        print("Error occurred:", str(e))  # Print the full error message
+        import traceback
+        print("Full traceback:", traceback.format_exc())  # Print the full traceback
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__': # this block only executes if the file is run directly (not imported)
@@ -193,6 +198,5 @@ if __name__ == '__main__': # this block only executes if the file is run directl
     # Start the Flask web server
     # host='0.0.0.0' makes the server accessible from any IP address
     # debug=True enables some development features like auto-reloading on code changes and etc.
-    #conn = get_db_connection()
-    #cursor = conn.cursor()
+    init_db()  # Initialize the database with dummy data
     app.run(host='0.0.0.0', port=port, debug=True)
