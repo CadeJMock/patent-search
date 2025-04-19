@@ -132,43 +132,50 @@ def index():
 def search_patents():
     """Search for patents based on the query"""
     try:
-        search_data = request.get_json()
-        print(f"Search request received: {search_data}")
+        request_data = request.get_json()
+        print(f"Search request received: {request_data}")
+        
+        # Extract searchParams from the request
+        search_data = request_data.get('searchParams', {})
+        
+        # Map patentId to id if it exists
+        if 'patentId' in search_data:
+            search_data['id'] = search_data.pop('patentId')
 
         # validate at least one field has content
-        if not search_data or not any(v.strip() for v in search_data.values() if v):
+        if not search_data or not any(str(v).strip() for v in search_data.values() if v is not None):
             return jsonify({'error': 'Please provide at least one search term'}), 400
 
         # build the base query
         base_query = '''
             SELECT id, title, authors, date, description 
             FROM patents 
-            WHERE 1=1  # Allows easy AND concatenation
+            WHERE 1=1  -- Allows easy AND concatenation
         '''
         query_params = []
 
         # add field specific conditions
         # title search (partial match)
-        if 'title' in search_data and search_data['title'].strip():
+        if 'title' in search_data and search_data['title'] and str(search_data['title']).strip():
             base_query += " AND title ILIKE %s"
-            query_params.append(f"%{search_data['title'].strip()}%")
+            query_params.append(f"%{str(search_data['title']).strip()}%")
 
         # authors search /partial match
-        if 'authors' in search_data and search_data['authors'].strip():
+        if 'authors' in search_data and search_data['authors'] and str(search_data['authors']).strip():
             base_query += " AND authors ILIKE %s"
-            query_params.append(f"%{search_data['authors'].strip()}%")
+            query_params.append(f"%{str(search_data['authors']).strip()}%")
 
         # patent ID search /partial match
-        if 'id' in search_data and search_data['id'].strip():
+        if 'id' in search_data and search_data['id'] and str(search_data['id']).strip():
             base_query += " AND id ILIKE %s"
-            query_params.append(f"%{search_data['id'].strip()}%")
+            query_params.append(f"%{str(search_data['id']).strip()}%")
 
         # date search (exact match with validation)
-        if 'date' in search_data and search_data['date'].strip():
+        if 'date' in search_data and search_data['date'] and str(search_data['date']).strip():
             try:
-                datetime.strptime(search_data['date'].strip(), '%Y-%m-%d')
+                datetime.strptime(str(search_data['date']).strip(), '%Y-%m-%d')
                 base_query += " AND date = %s"
-                query_params.append(search_data['date'].strip())
+                query_params.append(str(search_data['date']).strip())
             except ValueError:
                 return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
 
@@ -208,5 +215,5 @@ if __name__ == '__main__': # this block only executes if the file is run directl
     # Start the Flask web server
     # host='0.0.0.0' makes the server accessible from any IP address
     # debug=True enables some development features like auto-reloading on code changes and etc.
-    init_db()  # Initialize the database with dummy data
+    #init_db()  # Initialize the database with dummy data
     app.run(host='0.0.0.0', port=port, debug=True)
