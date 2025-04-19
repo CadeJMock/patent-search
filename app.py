@@ -194,7 +194,7 @@ def search_patents():
             'id': row[0],
             'title': row[1],
             'authors': row[2],
-            'date': row[3].strftime('%Y-%m-%d'),
+            'date': row[3].strftime('%Y-%m-%d') if row[3] is not None else None,
             'description': row[4] if row[4] else 'No description available'
         } for row in results]
         
