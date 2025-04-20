@@ -145,8 +145,13 @@ h2 {
     border: 1px solid #ddd;
     padding: 15px;
     margin-bottom: 15px;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.patent-item:hover {
+    background-color: #f5f5f5;
 }
 
 .patent-title {
@@ -176,4 +181,50 @@ h2 {
     text-align: center;
     color: #7f8c8d; /* same as patent-details */
     margin: 20px 0;
+}
+
+.recommendations-container {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.recommendations {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.recommendations h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.recommendation-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.recommendation-item:hover {
+    background-color: #e9ecef;
+}
+
+.recommendation-title {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.recommendation-details {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.patent-item.selected {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
 }

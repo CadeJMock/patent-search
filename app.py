@@ -7,6 +7,9 @@ import psycopg2 # PostgreSQL adapter for Python
 import os # Operating system interface for environment variables
 from dotenv import load_dotenv # For loading environment variables from .env file
 from datetime import datetime # For date validation
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 # Load environment variables from .env file
 # (This just allows us to keep database credentials outside of the code, change the .env file to your own names and passwords)
@@ -203,6 +206,106 @@ def search_patents():
         
         return jsonify(patents)
 
+    except psycopg2.Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': 'Database operation failed'}), 500
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+def calculate_similarity(text1, text2, vectorizer=None):
+    """Calculate similarity between two text strings using TF-IDF and cosine similarity"""
+    try:
+        if not text1 or not text2:
+            return 0.0
+        
+        # Create TF-IDF vectorizer if not provided
+        if vectorizer is None:
+            vectorizer = TfidfVectorizer(stop_words='english')
+            vectorizer.fit([text1, text2])
+        
+        # Calculate TF-IDF matrices
+        tfidf_matrix = vectorizer.transform([text1, text2])
+        
+        # Calculate cosine similarity
+        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+        
+        return float(similarity)
+    except Exception as e:
+        print(f"Error calculating similarity: {e}")
+        return 0.0
+
+@app.route('/recommendations/<patent_id>')
+def get_recommendations(patent_id):
+    """Get patent recommendations based on content similarity"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get the target patent
+        cursor.execute("""
+            SELECT id, title, authors, date, description 
+            FROM patents 
+            WHERE id = %s
+        """, (patent_id,))
+        target_patent = cursor.fetchone()
+        
+        if not target_patent:
+            return jsonify({'error': 'Patent not found'}), 404
+            
+        # Get other patents to compare (limit to 100 for performance)
+        cursor.execute("""
+            SELECT id, title, authors, date, description 
+            FROM patents 
+            WHERE id != %s
+            LIMIT 100
+        """, (patent_id,))
+        other_patents = cursor.fetchall()
+        
+        # Calculate similarities
+        target_text = f"{target_patent[1]} {target_patent[4]}"  # Combine title and description
+        
+        # Create a single vectorizer for all comparisons
+        vectorizer = TfidfVectorizer(stop_words='english')
+        all_texts = [target_text] + [f"{p[1]} {p[4]}" for p in other_patents]
+        vectorizer.fit(all_texts)
+        
+        recommendations = []
+        for patent in other_patents:
+            patent_text = f"{patent[1]} {patent[4]}"  # Combine title and description
+            similarity = calculate_similarity(target_text, patent_text, vectorizer)
+            
+            if similarity > 0.05:  # Lower threshold to find more recommendations
+                recommendations.append({
+                    'id': patent[0],
+                    'title': patent[1],
+                    'authors': patent[2],
+                    'date': patent[3].strftime('%Y-%m-%d') if patent[3] is not None else None,
+                    'description': patent[4] if patent[4] else 'No description available',
+                    'similarity_score': round(similarity, 3)
+                })
+        
+        # Sort by similarity score and get top 5
+        recommendations.sort(key=lambda x: x['similarity_score'], reverse=True)
+        recommendations = recommendations[:5]
+        
+        # Format target patent
+        target_patent_data = {
+            'id': target_patent[0],
+            'title': target_patent[1],
+            'authors': target_patent[2],
+            'date': target_patent[3].strftime('%Y-%m-%d') if target_patent[3] is not None else None,
+            'description': target_patent[4] if target_patent[4] else 'No description available'
+        }
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'target_patent': target_patent_data,
+            'recommendations': recommendations
+        })
+        
     except psycopg2.Error as e:
         print(f"Database error: {e}")
         return jsonify({'error': 'Database operation failed'}), 500

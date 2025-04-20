@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                 // loop through each patent in the results and build the HTML for each one
                 data.forEach(patent => {
                     resultsHTML += `
-                        <div class="patent-item">
+                        <div class="patent-item" data-patent-id="${patent.id}">
                             <div class="patent-title">${patent.title}</div>
                             <div class="patent-details">
                                 <strong>ID:</strong> ${patent.id} | 
@@ -76,12 +76,75 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                                 <strong>Filed:</strong> ${patent.date}
                             </div>
                             <div class="patent-description">${patent.description}</div>
+                            <div class="recommendations-container"></div>
                         </div>
                     `;
                 });
                 
                 // insert all the patent HTML into the result container
                 resultsContainer.innerHTML = resultsHTML;
+
+                // Add click handlers to patent items
+                document.querySelectorAll('.patent-item').forEach(item => {
+                    item.addEventListener('click', async function() {
+                        const patentId = this.dataset.patentId;
+                        const recommendationsContainer = this.querySelector('.recommendations-container');
+                        
+                        // Show loading state
+                        recommendationsContainer.innerHTML = '<p>Loading recommendations...</p>';
+                        
+                        try {
+                            const response = await fetch(`/recommendations/${patentId}`);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            
+                            const data = await response.json();
+                            
+                            if (data.recommendations && data.recommendations.length > 0) {
+                                let recommendationsHTML = '<div class="recommendations"><h3>Similar Patents:</h3>';
+                                data.recommendations.forEach(rec => {
+                                    recommendationsHTML += `
+                                        <div class="recommendation-item" data-patent-id="${rec.id}">
+                                            <div class="recommendation-title">${rec.title}</div>
+                                            <div class="recommendation-details">
+                                                <strong>ID:</strong> ${rec.id} | 
+                                                <strong>Similarity:</strong> ${(rec.similarity_score * 100).toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                recommendationsHTML += '</div>';
+                                recommendationsContainer.innerHTML = recommendationsHTML;
+
+                                // Add click handlers to recommendation items
+                                recommendationsContainer.querySelectorAll('.recommendation-item').forEach(item => {
+                                    item.addEventListener('click', async function(e) {
+                                        e.stopPropagation(); // Prevent the click from bubbling up to the parent patent
+                                        const patentId = this.dataset.patentId;
+                                        
+                                        // Remove selected class from all patent items
+                                        document.querySelectorAll('.patent-item').forEach(pi => {
+                                            pi.classList.remove('selected');
+                                        });
+                                        
+                                        // Find and click the patent item with this ID
+                                        const patentItem = document.querySelector(`.patent-item[data-patent-id="${patentId}"]`);
+                                        if (patentItem) {
+                                            patentItem.click();
+                                            patentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }
+                                    });
+                                });
+                            } else {
+                                recommendationsContainer.innerHTML = '<p>No similar patents found.</p>';
+                            }
+                        } catch (error) {
+                            recommendationsContainer.innerHTML = `<p>Error loading recommendations: ${error.message}</p>`;
+                            console.error('Recommendations error:', error);
+                        }
+                    });
+                });
             }
         } catch (error) {
             // for if any errors occur during the fetch operation or result processing
