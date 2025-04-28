@@ -38,6 +38,8 @@ def format_patent_date(date_str):
     Returns:
         Formatted date string or None if invalid
     """
+    print(f"Formatting date: {date_str}, type: {type(date_str)}")
+    
     if not date_str or len(date_str) != 8:
         return None
         
@@ -72,12 +74,24 @@ def insert_patents_from_json(json_file):
 
         # insert each patent into the database
         for patent in patents_data:
-            # format the patent date for PostgreSQL
-            patent_date_str = patent.get('patent_date', '')
-            formatted_grant_date = format_patent_date(patent_date_str)
+            patent_date_str = patent.get('date', '')
+            formatted_grant_date = None
             
             priority_date_str = patent.get('priority_date', '')
             formatted_priority_date = format_patent_date(priority_date_str)
+            
+            if patent_date_str:
+                try:
+                    if len(patent_date_str) == 8:
+                        year = patent_date_str[:4]
+                        month = patent_date_str[4:6]
+                        day = patent_date_str[6:8]
+                        formatted_grant_date = f"{year}-{month}-{day}"
+                        print(f"Formatted date: {patent_date_str} -> {formatted_grant_date}")
+                    else:
+                        print(f"Warning: Date has unexpected format: {patent_date_str}")
+                except Exception as e:
+                    print(f"Error formatting date {patent_date_str}: {e}")
             
             try:
                 cursor.execute('''
