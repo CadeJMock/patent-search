@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
         performSearch(new FormData(this));
     });
 
+
     // main search function that will be triggered when the user clicks search
     // async function because we need to 'await' the fetch request
     async function performSearch(formData) {
@@ -73,9 +74,9 @@ document.addEventListener('DOMContentLoaded', function() { // wait for the DOM t
                             <div class="patent-details">
                                 <strong>ID:</strong> ${patent.id} | 
                                 <strong>Author(s):</strong> ${patent.authors} | 
-                                <strong>Filed:</strong> ${patent.date}
+                                <strong>Granted:</strong> ${patent.date}
                             </div>
-                            <div class="patent-description">${patent.description}</div>
+                            <div class="patent-description">${patent.description || "No description available"}</div>
                             <div class="recommendations-container"></div>
                         </div>
                     `;
