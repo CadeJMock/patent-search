@@ -41,6 +41,7 @@ def get_db_connection():
     # setting autocommit=True means each query will be committed immediately
     # without needing explicit transaction management
     conn.autocommit = True
+    print("Database Connection Complete")
     return conn
 
 def init_db():
@@ -52,6 +53,7 @@ def init_db():
     # DROP the patents table if it exists, this is to ensure it updates with our dummy_patents data each time,
     # in case we add new information or change stuff around
     cursor.execute('DROP TABLE IF EXISTS patents')
+    print("patents dropped if it exists")
     
     # create patents table if it doesn't exist yet
     # this table stores all patent information
@@ -64,6 +66,7 @@ def init_db():
             description TEXT                 -- Brief description of the patent
         )
     ''')
+    print("patents table created")
     
     # check if we already have data in the table to avoid duplicates
     cursor.execute("SELECT COUNT(*) FROM patents")
@@ -117,8 +120,9 @@ def init_db():
             INSERT INTO patents (id, title, authors, date, description)
             VALUES (%s, %s, %s, %s, %s)
         ''', dummy_patents)
+        print("patents inserted into table")
     
-    # clsoe the cursor and connection
+    # close the cursor and connection
     cursor.close()
     conn.close()
 
@@ -154,7 +158,7 @@ def search_patents():
             SELECT id, title, authors, date, description 
             FROM patents 
             WHERE 1=1  -- Allows easy AND concatenation
-        '''
+        '''     
         query_params = []
 
         # add field specific conditions
@@ -315,6 +319,7 @@ def get_recommendations(patent_id):
 
 if __name__ == '__main__': # this block only executes if the file is run directly (not imported)
     port = int(os.getenv("PORT", 5000))
+    # init_db() # uncomment this to create/fill a patents table with dummy patent data - for testing
     # Start the Flask web server
     # host='0.0.0.0' makes the server accessible from any IP address
     # debug=True enables some development features like auto-reloading on code changes and etc.
