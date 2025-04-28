@@ -2,6 +2,14 @@
 html, body {
     height: 100%;
     width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    background: linear-gradient(0deg, rgba(0, 60, 124, 1) 0%, rgba(0, 38, 79, 1) 50%, rgba(0, 13, 28, 1) 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 body {
@@ -10,8 +18,7 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background: #003C7C;
-    background: linear-gradient(0deg, rgba(0, 60, 124, 1) 0%, rgba(0, 38, 79, 1) 50%, rgba(0, 13, 28, 1) 100%);
+    background: transparent
 }
 
 /* Typography styles */
