@@ -12,23 +12,27 @@ Patent Search, also referred to as Black Marlin Patent Finder, is a web applicat
 
 ## Project Structure
 ```
-Patent Finder/
+patent-search/
 ├── app.py                         # Flask backend server with API endpoints
 ├── .env                           # Environment variables (DB credentials, port, etc.)
-├── requirements.txt               # Python dependencies
 ├── .gitignore                     # Git ignore file
-/static/
-  ├── index.html                   # Main HTML file for the front-end interface
-  ├── script.js                    # JavaScript to handle search and API calls
-  ├── styles.css                   # CSS styles for the application
-/data scrapper/
-  ├── scrape_patent_data.py        # Script to process raw patent data from XML to JSON
-  ├── insert_patents_from_json.py  # Script to insert processed data into PostgreSQL
-  /Patent Extracted Data/
-    ├── ipg240102.xml              # Any .xml file from "https://bulkdata.uspto.gov/"
-                                   # "Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)"
-    ├── ipg240102_interim_x.json   # Multiple intermediate processed data files, x is multiples of 1000
-    ├── ipg240102.json             # Sample processed patent data (JSON format)
+├── gitignore.txt                  # Alternative gitignore file
+├── README.md                      # Project documentation
+├── requirements.txt               # Python dependencies
+│
+├── data scrapper/                 # Data processing directory
+│   ├── Extracted Patent Data/     # Directory for processed patent data
+│   ├── insert_patents_from_json.py # Script to insert processed data into PostgreSQL
+│   └── scrape_patent_data.py      # Script to process raw patent data from XML to JSON
+│
+├── static/                        # Frontend assets
+│   ├── resources/                 # Resource files
+│   │   └── Fish.png               # Logo image
+│   ├── index.html                 # Main HTML file for the front-end interface
+│   ├── script.js                  # JavaScript to handle search and API calls
+│   └── styles.css                 # CSS styles for the application
+│
+└── venv/                          # Virtual environment (not tracked in git)
 ```
 
 ## Technology Stack
@@ -86,7 +90,12 @@ To get a correct XML file to process:
 2. Download a zip file under the section "Patent Grant Full Text Data (No Images) (JAN 1976 - PRESENT)."
 3. Unzip the file into the "data scrapper" folder
 4. Run the `scrape_patent_data.py` file
+   - The script will prompt you to select an XML file
+   - It will process the file and generate JSON output in the "Extracted Patent Data" folder
+   - Interim files are created every 1000 patents to avoid memory issues
 5. After processing, use `insert_patents_from_json.py` to load the processed data into your database
+   - The script will prompt you to select a JSON file to import
+   - The patents will be added to your PostgreSQL database
 
 ## Patent Recommendation System
 The application includes a content-based recommendation system that finds similar patents based on their content. When viewing a patent, you can see up to 5 similar patents recommended by:
