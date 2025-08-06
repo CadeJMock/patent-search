@@ -1,4 +1,4 @@
-# Patent Search (Black Marlin)
+# USPTO Patent Search Web Application
 
 Patent Search, also referred to as Black Marlin Patent Finder, is a web application designed to help users search, browse, and analyze patent documents. The app offers features such as keyword search, detailed patent views, and AI-powered patent recommendations to simplify patent research.
 
