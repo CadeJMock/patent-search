@@ -105,4 +105,5 @@ The application includes a content-based recommendation system that finds simila
 3. Threshold-based filtering to ensure relevance
 
 ## Authors
-- **Team Members:** Kathleen Sachez, Cade Mock, Cole Mattern, Alex Pittman, Darrnell Lampkin, Parker Jung, and Charan Jagwani
+- **Team Lead:** Cade Mock
+- **Team Members:** Kathleen Sachez, Cole Mattern, Alex Pittman, Darrnell Lampkin, Parker Jung, and Charan Jagwani
